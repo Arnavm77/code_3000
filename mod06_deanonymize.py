@@ -1,5 +1,6 @@
 import pandas as pd
 
+
 def load_data(anonymized_path, auxiliary_path):
     """
     Load anonymized and auxiliary datasets.
@@ -18,7 +19,13 @@ def link_records(anon_df, aux_df):
       anon_id, matched_name
     containing ONLY uniquely matched records.
     """
-    raise NotImplementedError
+    quasi_identifiers = ["age", "gender", "zip3"]
+
+    merged = anon_df.merge(aux_df, on=quasi_identifiers, how="inner")
+ 
+    unique_matches = merged[~merged.duplicated(subset=["anon_id"], keep=False)]
+
+    return unique_matches[["anon_id", "name"]].rename(columns={"name": "matched_name"})
 
 
 def deanonymization_rate(matches_df, anon_df):
@@ -26,4 +33,4 @@ def deanonymization_rate(matches_df, anon_df):
     Compute the fraction of anonymized records
     that were uniquely re-identified.
     """
-    raise NotImplementedError
+    return len(matches_df) / len(anon_df)
